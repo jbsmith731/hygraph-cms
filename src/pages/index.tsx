@@ -1,14 +1,23 @@
 import { Link, StyledLink } from '@components/common/Link/Link';
+import {
+  fetchHomePage,
+  HOME_QUERY_KEY,
+  useHomePageQuery,
+} from '@graphql/queries/get-home-page';
 import { buttonBase } from '@styles/elements/button.css';
 import { heading } from '@styles/elements/heading.css';
 import { stack } from '@styles/primitives/stack.css';
 import { text } from '@styles/primitives/text.css';
 import { sprinkles } from '@styles/sprinkles.css';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { GetStaticProps } from 'next';
 import * as React from 'react';
 
 const Home = () => {
   const [count, setCount] = React.useState(0);
+  const { data } = useHomePageQuery();
+  const { pageHeading } = data?.home ?? {};
 
   return (
     <main>
@@ -18,7 +27,7 @@ const Home = () => {
           sprinkles({ gap: { initial: 0, bp2: 3 }, padding: 3 }),
         )}
       >
-        <h1 className={heading()}>next.js starter</h1>
+        <h1 className={heading()}>{pageHeading}</h1>
         <p
           className={clsx(
             text({
@@ -54,6 +63,18 @@ const Home = () => {
       </div>
     </main>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery([HOME_QUERY_KEY], () => fetchHomePage(false));
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
 };
 
 export default Home;

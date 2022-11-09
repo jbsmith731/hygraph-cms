@@ -1,0 +1,5 @@
+query GetHomePage {
+  home(where: { id: "cla8glpnn7xc10ak9m3y6t297" }) {
+    pageHeading
+  }
+}
